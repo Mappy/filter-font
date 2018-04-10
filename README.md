@@ -1,3 +1,8 @@
+Wrapper around fonttools (pyftsubset) to extract characters of a font
+
+Python script that automate the extraction of a subset of a font.
+useful for CSS3 property unicode-range
+
 ```
 docker run -it --rm \
   -e FONT_NAME=myfont.woff  \
@@ -9,7 +14,7 @@ docker run -it --rm \
 ```
 
 Generate 4 fonts
-    * myfont-light.woff
-    * myfont-light.woff2
-    * myfont-the-rest.woff
-    * myfont-the-rest.woff2
+* myfont-light.woff
+* myfont-light.woff2
+* myfont-the-rest.woff
+* myfont-the-rest.woff2
