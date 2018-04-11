@@ -40,7 +40,7 @@ pyftsubset ${FONT_FULL} --name-IDs='*' \
   --output-file=${FONTS_TARGET}${FONT_NAME}-the-rest.woff2 --flavor=woff2
 
 chown ${USERID} ${UNICODE_RANGE_LESS}
-chown ${USERID} ${FONTS_TARGET}${FONT_NAME}-2.woff
-chown ${USERID} ${FONTS_TARGET}${FONT_NAME}-2.woff2
+chown ${USERID} ${FONTS_TARGET}${FONT_NAME}-the-rest.woff
+chown ${USERID} ${FONTS_TARGET}${FONT_NAME}-the-rest.woff2
 chown ${USERID} ${FONT_TARGET_LIGHT}.woff
 chown ${USERID} ${FONT_TARGET_LIGHT}.woff2
