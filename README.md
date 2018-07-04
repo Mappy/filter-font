@@ -14,7 +14,9 @@ docker run -it --rm \
 ```
 
 Generate 4 fonts
-* myfont-light.woff
-* myfont-light.woff2
+* myfont-common.woff
+* myfont-common.woff2
+* myfont-itinerary.woff
+* myfont-itinerary.woff2
 * myfont-the-rest.woff
 * myfont-the-rest.woff2

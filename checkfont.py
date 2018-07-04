@@ -15,21 +15,27 @@ def chars(font):
   ttf.close()
   return cmap
 
-chars0 = chars(sys.argv[1])
-chars1 = chars(sys.argv[2])
-ch = chars0 - chars1
-unicode_range_other = ",".join(sorted(list(ch)))
-unicode_range_light = ",".join(sorted(list(chars1)))
+chars_all = chars(sys.argv[1])
+chars_common = chars(sys.argv[2])
+chars_itinerary = chars(sys.argv[3])
+chars_other = chars_all - chars_common - chars_itinerary
 
-f = open(sys.argv[3], 'w')
-f.write("@unicode_range_light: ")
-f.write(unicode_range_light)
+unicode_range_other = ",".join(sorted(list(chars_other)))
+unicode_range_common = ",".join(sorted(list(chars_common)))
+unicode_range_itinerary = ",".join(sorted(list(chars_itinerary)))
+
+f = open(sys.argv[4], 'w')
+f.write("@unicode_range_common: ")
+f.write(unicode_range_common)
+f.write(";\n")
+f.write("@unicode_range_itinerary: ")
+f.write(unicode_range_itinerary)
 f.write(";\n")
 f.write("@unicode_range_other: ")
 f.write(unicode_range_other)
 f.write(";\n")
 f.close()
 
-f = open(sys.argv[4], 'w')
+f = open(sys.argv[5], 'w')
 f.write(unicode_range_other)
 f.close()
