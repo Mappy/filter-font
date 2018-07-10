@@ -3,9 +3,8 @@
 set -eo pipefail
 
 # IN
+read -r -a FONT_FILES_KEYS <<< ${FONT_FILES_KEYS=?Define FONT_FILES_KEYS}
 FONT_FULL=/tmp/in/${FONT_NAME=?Define FONT_NAME}
-UNICODE_RANGE_COMMON=/tmp/in/unicode-range-common.txt
-UNICODE_RANGE_ITINERARY=/tmp/in/unicode-range-itinerary.txt
 
 # OUT
 echo UNICODE_RANGE_OTHER=${UNICODE_RANGE_OTHER:=/tmp/unicode_range_other.txt}
@@ -20,32 +19,33 @@ echo "Will affect generated files to ${USERID:?Define USERID}"
 # COMPUTED
 FONT_FULL_NAME=$(basename ${FONT_FULL})
 FONT_NAME=${FONT_FULL_NAME%.*}
-FONT_TARGET_COMMON=${FONTS_TARGET}${FONT_NAME}-common
-FONT_TARGET_ITINERARY=${FONTS_TARGET}${FONT_NAME}-itinerary
 
-# WRITE COMMON
-pyftsubset ${FONT_FULL} --name-IDs='*' --no-ignore-missing-unicodes \
-  --unicodes-file=${UNICODE_RANGE_COMMON} \
-  --output-file=${FONT_TARGET_COMMON}.woff --flavor=woff
+CHECKFONT_RANGES=""
 
-pyftsubset ${FONT_FULL} --name-IDs='*' --no-ignore-missing-unicodes \
-  --unicodes-file=${UNICODE_RANGE_COMMON} \
-  --output-file=${FONT_TARGET_COMMON}.woff2 --flavor=woff2
+for RANGE_NAME in "${FONT_FILES_KEYS[@]}"
+do
+  FONT_FILE_NAME=${FONTS_TARGET}${FONT_NAME}-${RANGE_NAME}
+  RANGE_FILE_NAME=/tmp/in/unicode-range-${RANGE_NAME}.txt
+  pyftsubset ${FONT_FULL} --name-IDs='*' --no-ignore-missing-unicodes \
+    --unicodes-file=${RANGE_FILE_NAME} \
+    --output-file=${FONT_FILE_NAME}.woff --flavor=woff
 
-echo "Common fonts written"
+  pyftsubset ${FONT_FULL} --name-IDs='*' --no-ignore-missing-unicodes \
+    --unicodes-file=${RANGE_FILE_NAME} \
+    --output-file=${FONT_FILE_NAME}.woff2 --flavor=woff2
 
-# WRITE ITINERARY
-pyftsubset ${FONT_FULL} --name-IDs='*' --no-ignore-missing-unicodes \
-  --unicodes-file=${UNICODE_RANGE_ITINERARY} \
-  --output-file=${FONT_TARGET_ITINERARY}.woff --flavor=woff
+  chown ${USERID} ${FONT_FILE_NAME}.woff
+  chown ${USERID} ${FONT_FILE_NAME}.woff2
 
-pyftsubset ${FONT_FULL} --name-IDs='*' --no-ignore-missing-unicodes \
-  --unicodes-file=${UNICODE_RANGE_ITINERARY} \
-  --output-file=${FONT_TARGET_ITINERARY}.woff2 --flavor=woff2
+  if [ -n "$CHECKFONT_RANGES" ]; then
+    CHECKFONT_RANGES="$CHECKFONT_RANGES|"
+  fi
+  CHECKFONT_RANGES="$CHECKFONT_RANGES$RANGE_NAME"
 
-echo "Itinerary fonts written"
+  echo "Font range '${RANGE_NAME}' written."
+done
 
-/usr/app/checkfont.py ${FONT_FULL} ${FONT_TARGET_COMMON}.woff ${FONT_TARGET_ITINERARY}.woff ${UNICODE_RANGE_LESS} ${UNICODE_RANGE_OTHER}
+/usr/app/checkfont.py ${FONT_FULL} ${CHECKFONT_RANGES} ${UNICODE_RANGE_LESS} ${UNICODE_RANGE_OTHER}
 
 # WRITE OTHER
 pyftsubset ${FONT_FULL} --name-IDs='*' \
@@ -56,10 +56,8 @@ pyftsubset ${FONT_FULL} --name-IDs='*' \
   --unicodes-file=${UNICODE_RANGE_OTHER} \
   --output-file=${FONTS_TARGET}${FONT_NAME}-the-rest.woff2 --flavor=woff2
 
+echo "Font range 'the rest' written."
+
 chown ${USERID} ${UNICODE_RANGE_LESS}
 chown ${USERID} ${FONTS_TARGET}${FONT_NAME}-the-rest.woff
 chown ${USERID} ${FONTS_TARGET}${FONT_NAME}-the-rest.woff2
-chown ${USERID} ${FONT_TARGET_COMMON}.woff
-chown ${USERID} ${FONT_TARGET_COMMON}.woff2
-chown ${USERID} ${FONT_TARGET_ITINERARY}.woff
-chown ${USERID} ${FONT_TARGET_ITINERARY}.woff2
